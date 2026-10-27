@@ -1,0 +1,36 @@
+{
+  "ads": [
+    {
+      "id": "a1",
+      "title": "Super Photo Editor",
+      "description": "Edit photos with 100+ filters. Free download!",
+      "iconUrl": "https://placehold.co/128x128/1E88E5/FFFFFF.png?text=PE",
+      "imageUrl": "https://placehold.co/800x400/1E88E5/FFFFFF.png?text=Photo+Editor",
+      "clickUrl": "com.google.android.apps.photos",
+      "buttonText": "Install"
+    },
+    {
+      "id": "a2",
+      "title": "Fast Cleaner",
+      "description": "Free up storage and speed up your phone.",
+      "iconUrl": "https://placehold.co/128x128/43A047/FFFFFF.png?text=FC",
+      "imageUrl": "https://placehold.co/800x400/43A047/FFFFFF.png?text=Fast+Cleaner",
+      "clickUrl": "https://play.google.com/store/apps/details?id=com.google.android.apps.maps",
+      "buttonText": "Open"
+    },
+    {
+      "id": "a3",
+      "title": "Quick Notes",
+      "description": "Simple notes app with reminders.",
+      "iconUrl": "https://placehold.co/128x128/E53935/FFFFFF.png?text=QN",
+      "imageUrl": "https://placehold.co/800x400/E53935/FFFFFF.png?text=Quick+Notes",
+      "clickUrl": "com.google.android.keep",
+      "buttonText": "Install"
+    }
+  ],
+  "units": {
+    "banner_home": ["a1", "a2"],
+    "native_home": ["a2", "a3"],
+    "interstitial_next": ["a1", "a3"]
+  }
+}
