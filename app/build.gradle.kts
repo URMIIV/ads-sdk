@@ -1,5 +1,5 @@
 plugins {
-    id("com.android.library")
+    alias(libs.plugins.android.library)
     id("maven-publish")
 }
 
@@ -43,7 +43,7 @@ afterEvaluate {
         publications {
             register<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.github.YourGithubUser"
+                groupId = "com.github.YOUR_GITHUB_USERNAME"
                 artifactId = "adsdk"
                 version = "1.0.0"
             }
