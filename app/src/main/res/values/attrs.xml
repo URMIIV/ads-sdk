@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BannerAdView">
+        <!-- Your own XML layout shown (with a shimmer sweep) while the ad is loading -->
+        <attr name="shimmerLayout" format="reference" />
+    </declare-styleable>
+</resources>

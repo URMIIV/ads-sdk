@@ -10,9 +10,3 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
--keep class com.example.adssdk.AdSdk { *; }
--keep class com.example.adssdk.Ads { *; }
--keep class com.example.adssdk.AdListener { *; }
--keep class com.example.adssdk.BannerAdView { *; }
--keep class com.example.adssdk.NativeAdView { *; }
--keep class com.example.adssdk.InterstitialAdActivity { *; }
