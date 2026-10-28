@@ -35,7 +35,6 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     api("com.google.android.gms:play-services-ads:23.3.0")
-
 }
 
 afterEvaluate {
@@ -43,9 +42,9 @@ afterEvaluate {
         publications {
             register<MavenPublication>("release") {
                 from(components["release"])
-                groupId = "com.github.YOUR_GITHUB_USERNAME"
-                artifactId = "adsdk"
-                version = "1.0.0"
+                groupId = "com.github.URMIIV"
+                artifactId = "ads-sdk"
+                version = "1.0.2"
             }
         }
     }
