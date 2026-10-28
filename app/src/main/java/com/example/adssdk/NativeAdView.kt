@@ -134,6 +134,7 @@ class NativeAdView @JvmOverloads constructor(
         addView(button, buttonParams)
 
         setOnClickListener { open() }
+        listener?.onAdInfo(ad.title, ad.description, ad.id, ad.iconUrl)
         listener?.onAdLoaded()
     }
 }

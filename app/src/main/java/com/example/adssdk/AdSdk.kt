@@ -6,6 +6,9 @@ import android.content.Intent
 import android.net.Uri
 import android.view.ViewGroup
 
+/**
+ * YOUR OWN ads (ads.json). To mix with Google ads use the [Ads] class instead.
+ */
 object AdSdk {
 
     /** Minimum gap between two full screen ads (milliseconds). */
@@ -22,6 +25,10 @@ object AdSdk {
     fun init(context: Context, configUrl: String) {
         AdRepository.load(context, configUrl)
     }
+
+    /** Loads an ad icon (http link) into an ImageView, e.g. to show which ad was loaded. */
+    @JvmStatic
+    fun loadIcon(url: String, view: android.widget.ImageView) = ImageLoader.load(url, view)
 
     @JvmStatic
     fun isReady(): Boolean = AdRepository.ads.isNotEmpty()
@@ -42,7 +49,7 @@ object AdSdk {
                 ViewGroup.LayoutParams.WRAP_CONTENT
             )
         )
-        banner.load(unitId, listener)
+        banner.loadOwn(unitId, listener)
     }
 
     /**
@@ -71,12 +78,28 @@ object AdSdk {
     @JvmStatic
     @JvmOverloads
     fun showInterstitial(activity: Activity, unitId: String = "", onClosed: () -> Unit = {}) {
-        val ad = AdRepository.random()
+        if (!tryShowInterstitial(activity, unitId, onClosed)) onClosed()
+    }
+
+    /**
+     * Same as showInterstitial, but tells you if there was an ad.
+     *  true  = handled: the ad screen was opened, or it was skipped because of minIntervalMs
+     *          (onClosed is called for you in that case).
+     *  false = there is NO ad. onClosed is NOT called, so you can try another source.
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun tryShowInterstitial(
+        activity: Activity,
+        unitId: String = "",
+        onClosed: () -> Unit = {}
+    ): Boolean {
+        val ad = AdRepository.random(unitId.ifBlank { null }) ?: return false
         val now = System.currentTimeMillis()
 
-        if (ad == null || now - lastShown < minIntervalMs) {
+        if (now - lastShown < minIntervalMs) {
             onClosed()
-            return
+            return true
         }
 
         lastShown = now
@@ -84,6 +107,7 @@ object AdSdk {
         activity.startActivity(
             Intent(activity, InterstitialAdActivity::class.java).putExtra("ad_id", ad.id)
         )
+        return true
     }
 
     internal fun openAd(context: Context, ad: AdModel) {
@@ -115,5 +139,3 @@ object AdSdk {
 
 internal fun dp(context: Context, value: Int): Int =
     (value * context.resources.displayMetrics.density).toInt()
-
-
