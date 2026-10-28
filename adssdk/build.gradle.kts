@@ -37,8 +37,6 @@ dependencies {
 
     // Google AdMob (api = the app can also see Google classes such as AdSize)
     api("com.google.android.gms:play-services-ads:23.3.0")
-
-    implementation("com.github.URMIIV:ads-sdk:1.0.2")
 }
 
 afterEvaluate {
