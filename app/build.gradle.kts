@@ -34,6 +34,8 @@ android {
 
 dependencies {
     implementation(libs.androidx.core.ktx)
+    api("com.google.android.gms:play-services-ads:23.3.0")
+
 }
 
 afterEvaluate {
