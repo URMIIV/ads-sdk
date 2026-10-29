@@ -94,7 +94,8 @@ object Ads {
         container: ViewGroup,
         unitId: String = "",
         listener: AdListener? = null,
-        shimmerLayout: Int = 0
+        shimmerLayout: Int = 0,
+        collapsible: Boolean = false   // true = Google collapsible banner (own ads are normal banners)
     ) {
         Log.d(TAG, "Ads: loadBanner called for unitId='$unitId', sourceChain=${sourceFor(unitId).chain()}")
         banners.remove(container)?.destroy()
@@ -108,7 +109,7 @@ object Ads {
             onAllFailed = { container.removeAllViews() }
         ) { source, l ->
             if (source == AdSource.GOOGLE) {
-                GoogleAds.loadBanner(activity, container, l, unitId = unitId)?.let { banners[container] = it }
+                GoogleAds.loadBanner(activity, container, l, unitId = unitId, collapsible = collapsible)?.let { banners[container] = it }
             } else {
                 AdSdk.loadBanner(container, unitId, l)
             }

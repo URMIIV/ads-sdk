@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.os.Bundle
 import android.util.Log
 import android.view.Gravity
 import android.view.View
@@ -12,6 +13,7 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import com.google.ads.mediation.admob.AdMobAdapter
 import com.google.android.gms.ads.AdError
 import com.google.android.gms.ads.AdLoader
 import com.google.android.gms.ads.AdRequest
@@ -147,7 +149,8 @@ object GoogleAds {
         container: ViewGroup,
         listener: AdListener? = null,
         adSize: AdSize = AdSize.BANNER,
-        unitId: String = ""
+        unitId: String = "",
+        collapsible: Boolean = false
     ): AdView? {
         val id = adId(unitId) { it.banner }
         if (id.isBlank()) {
@@ -157,7 +160,14 @@ object GoogleAds {
         Log.d(TAG, "GoogleAds: banner [$unitId] loading with id $id (${if (isTest) "TEST" else "LIVE"} id)")
         listener?.onAdUnitId(id)
         val adView = AdView(activity)
-        adView.setAdSize(adSize)
+        // collapsible banner needs an anchored adaptive size (full width)
+        val size = if (collapsible) {
+            val dm = activity.resources.displayMetrics
+            AdSize.getCurrentOrientationAnchoredAdaptiveBannerAdSize(
+                activity, (dm.widthPixels / dm.density).toInt()
+            )
+        } else adSize
+        adView.setAdSize(size)
         adView.adUnitId = id
         adView.adListener = object : GmsAdListener() {
             override fun onAdLoaded() {
@@ -181,7 +191,17 @@ object GoogleAds {
         }
         container.removeAllViews()
         container.addView(adView)
-        adView.loadAd(request())
+        if (collapsible) {
+            // "bottom" = the banner is at the bottom of the screen and expands upwards
+            val extras = Bundle().apply { putString("collapsible", "bottom") }
+            adView.loadAd(
+                AdRequest.Builder()
+                    .addNetworkExtrasBundle(AdMobAdapter::class.java, extras)
+                    .build()
+            )
+        } else {
+            adView.loadAd(request())
+        }
         return adView
     }
 
