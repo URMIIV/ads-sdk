@@ -4,12 +4,15 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.view.ViewGroup
 
 /**
  * YOUR OWN ads (ads.json). To mix with Google ads use the [Ads] class instead.
  */
 object AdSdk {
+
+    private const val TAG = "urmii"
 
     /** Minimum gap between two full screen ads (milliseconds). */
     @JvmStatic
@@ -23,6 +26,7 @@ object AdSdk {
      */
     @JvmStatic
     fun init(context: Context, configUrl: String) {
+        Log.d(TAG, "AdSdk: init called with configUrl=$configUrl")
         AdRepository.load(context, configUrl)
     }
 
@@ -40,6 +44,7 @@ object AdSdk {
     @JvmStatic
     @JvmOverloads
     fun loadBanner(container: ViewGroup, unitId: String = "", listener: AdListener? = null) {
+        Log.d(TAG, "AdSdk: loadBanner called for unitId='$unitId'")
         container.removeAllViews()
         val banner = BannerAdView(container.context)
         container.addView(
@@ -59,6 +64,7 @@ object AdSdk {
     @JvmStatic
     @JvmOverloads
     fun loadNative(container: ViewGroup, unitId: String = "", listener: AdListener? = null) {
+        Log.d(TAG, "AdSdk: loadNative called for unitId='$unitId'")
         container.removeAllViews()
         val native = NativeAdView(container.context)
         container.addView(
@@ -78,6 +84,7 @@ object AdSdk {
     @JvmStatic
     @JvmOverloads
     fun showInterstitial(activity: Activity, unitId: String = "", onClosed: () -> Unit = {}) {
+        Log.d(TAG, "AdSdk: showInterstitial called for unitId='$unitId'")
         if (!tryShowInterstitial(activity, unitId, onClosed)) onClosed()
     }
 
@@ -94,15 +101,22 @@ object AdSdk {
         unitId: String = "",
         onClosed: () -> Unit = {}
     ): Boolean {
-        val ad = AdRepository.random(unitId.ifBlank { null }) ?: return false
+        Log.d(TAG, "AdSdk: tryShowInterstitial called for unitId='$unitId'")
+        val ad = AdRepository.random(unitId.ifBlank { null })
+        if (ad == null) {
+            Log.w(TAG, "AdSdk: [interstitial:$unitId] OWN ad not available in repository")
+            return false
+        }
         val now = System.currentTimeMillis()
 
         if (now - lastShown < minIntervalMs) {
+            Log.d(TAG, "AdSdk: [interstitial:$unitId] skipped due to minIntervalMs (${now - lastShown}ms < ${minIntervalMs}ms)")
             onClosed()
             return true
         }
 
         lastShown = now
+        Log.d(TAG, "AdSdk: [interstitial:$unitId] SHOWING OWN ad id='${ad.id}', title='${ad.title}'")
         InterstitialAdActivity.callback = onClosed
         activity.startActivity(
             Intent(activity, InterstitialAdActivity::class.java).putExtra("ad_id", ad.id)
@@ -112,6 +126,7 @@ object AdSdk {
 
     internal fun openAd(context: Context, ad: AdModel) {
         val link = ad.clickUrl
+        Log.d(TAG, "AdSdk: openAd called for ad id='${ad.id}', title='${ad.title}', clickUrl='$link'")
         if (link.isBlank()) return
 
         val uri = if (link.contains("://")) Uri.parse(link)

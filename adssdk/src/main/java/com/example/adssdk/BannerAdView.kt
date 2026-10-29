@@ -6,6 +6,7 @@ import android.content.ContextWrapper
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,8 @@ class BannerAdView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {
+
+    private val TAG = "urmii"
 
     /** Your own XML placeholder shown while the ad loads (0 = Ads.bannerShimmerLayout / built-in). */
     var shimmerLayout: Int = 0
@@ -49,12 +52,14 @@ class BannerAdView @JvmOverloads constructor(
      */
     @JvmOverloads
     fun load(unitId: String = "", listener: AdListener? = null) {
+        Log.d(TAG, "BannerAdView: load(unitId='$unitId') called")
         val activity = findActivity()
         if (activity == null) loadOwn(unitId, listener) else Ads.loadBannerInto(activity, this, unitId, listener)
     }
 
     /** Own (ads.json) ad only. */
     internal fun loadOwn(unitId: String, listener: AdListener?) {
+        Log.d(TAG, "BannerAdView: loadOwn(unitId='$unitId') called")
         background = ownBackground
         setPadding(dp(context, 10), dp(context, 6), dp(context, 10), dp(context, 6))
         minimumHeight = dp(context, 60)
@@ -63,6 +68,7 @@ class BannerAdView @JvmOverloads constructor(
 
     /** Prepares this view to host a Google AdView (no card look). */
     internal fun prepareForGoogle() {
+        Log.d(TAG, "BannerAdView: prepareForGoogle()")
         setOnClickListener(null)
         isClickable = false
         background = null
@@ -86,6 +92,7 @@ class BannerAdView @JvmOverloads constructor(
         val ad = AdRepository.random(unitId.ifBlank { null })
 
         if (ad == null) {
+            Log.w(TAG, "BannerAdView: [unitId='$unitId'] OWN banner ad not available (retry=$retry)")
             if (!retry) visibility = View.GONE
             if (retry) {
                 AdRepository.refresh { bind(unitId, listener, false) }
@@ -94,6 +101,8 @@ class BannerAdView @JvmOverloads constructor(
             }
             return
         }
+
+        Log.d(TAG, "BannerAdView: [unitId='$unitId'] OWN banner loaded -> id='${ad.id}', title='${ad.title}', description='${ad.description}', iconUrl='${ad.iconUrl}'")
 
         visibility = View.VISIBLE
         removeAllViews()

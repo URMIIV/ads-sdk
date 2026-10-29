@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.util.AttributeSet
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +16,8 @@ class NativeAdView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null
 ) : LinearLayout(context, attrs) {
+
+    private val TAG = "urmii"
 
     init {
         orientation = VERTICAL
@@ -30,6 +33,7 @@ class NativeAdView @JvmOverloads constructor(
     /** Loads an ad. Call this if you add NativeAdView from XML. */
     @JvmOverloads
     fun load(unitId: String = "", listener: AdListener? = null) {
+        Log.d(TAG, "NativeAdView: load(unitId='$unitId') called")
         bind(unitId, listener, true)
     }
 
@@ -37,6 +41,7 @@ class NativeAdView @JvmOverloads constructor(
         val ad = AdRepository.random(unitId.ifBlank { null })
 
         if (ad == null) {
+            Log.w(TAG, "NativeAdView: [unitId='$unitId'] OWN native ad not available (retry=$retry)")
             visibility = View.GONE
             if (retry) {
                 AdRepository.refresh { bind(unitId, listener, false) }
@@ -45,6 +50,8 @@ class NativeAdView @JvmOverloads constructor(
             }
             return
         }
+
+        Log.d(TAG, "NativeAdView: [unitId='$unitId'] OWN native loaded -> id='${ad.id}', title='${ad.title}', description='${ad.description}', iconUrl='${ad.iconUrl}', imageUrl='${ad.imageUrl}'")
 
         visibility = View.VISIBLE
         removeAllViews()

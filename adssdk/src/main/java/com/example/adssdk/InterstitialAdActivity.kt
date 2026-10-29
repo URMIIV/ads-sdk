@@ -4,6 +4,7 @@ import android.app.Activity
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -12,6 +13,8 @@ import android.widget.LinearLayout
 import android.widget.TextView
 
 class InterstitialAdActivity : Activity() {
+
+    private val TAG = "urmii"
 
     companion object {
         internal var callback: (() -> Unit)? = null
@@ -22,11 +25,17 @@ class InterstitialAdActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val ad = AdRepository.find(intent.getStringExtra("ad_id"))
+        val adId = intent.getStringExtra("ad_id")
+        Log.d(TAG, "InterstitialAdActivity: onCreate() for ad_id='$adId'")
+
+        val ad = AdRepository.find(adId)
         if (ad == null) {
+            Log.w(TAG, "InterstitialAdActivity: ad not found for id='$adId', finishing activity")
             finish()
             return
         }
+
+        Log.d(TAG, "InterstitialAdActivity: OWN interstitial SHOWING -> id='${ad.id}', title='${ad.title}', description='${ad.description}', imageUrl='${ad.imageUrl}'")
 
         val root = FrameLayout(this).apply {
             setBackgroundColor(Color.parseColor("#F2000000"))
@@ -96,6 +105,7 @@ class InterstitialAdActivity : Activity() {
                 cornerRadius = dp(this@InterstitialAdActivity, 28).toFloat()
             }
             setOnClickListener {
+                Log.d(TAG, "InterstitialAdActivity: OWN interstitial button clicked -> id='${ad.id}', title='${ad.title}'")
                 AdSdk.openAd(this@InterstitialAdActivity, ad)
                 finish()
             }
@@ -114,7 +124,10 @@ class InterstitialAdActivity : Activity() {
             setTextColor(Color.WHITE)
             textSize = 22f
             gravity = Gravity.CENTER
-            setOnClickListener { finish() }
+            setOnClickListener {
+                Log.d(TAG, "InterstitialAdActivity: OWN interstitial close button clicked -> id='${ad.id}'")
+                finish()
+            }
         }
         val closeParams = FrameLayout.LayoutParams(dp(this, 48), dp(this, 48))
         closeParams.gravity = Gravity.TOP or Gravity.END
@@ -126,6 +139,7 @@ class InterstitialAdActivity : Activity() {
     }
 
     override fun finish() {
+        Log.d(TAG, "InterstitialAdActivity: finish() called (closed=$closed)")
         super.finish()
         if (!closed) {
             closed = true

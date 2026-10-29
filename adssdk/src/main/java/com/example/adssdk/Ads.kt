@@ -68,6 +68,7 @@ object Ads {
         googleTestMode: Boolean = false,
         defaultSource: AdSource = AdSource.GOOGLE_THEN_OWN
     ) {
+        Log.d(TAG, "Ads: init called with configUrl=$configUrl, defaultSource=$defaultSource, googleTestMode=$googleTestMode")
         this.defaultSource = defaultSource
         AdSdk.init(context, configUrl)
         GoogleAds.init(context = context, adIds = googleIds, testMode = googleTestMode)
@@ -95,6 +96,7 @@ object Ads {
         listener: AdListener? = null,
         shimmerLayout: Int = 0
     ) {
+        Log.d(TAG, "Ads: loadBanner called for unitId='$unitId', sourceChain=${sourceFor(unitId).chain()}")
         banners.remove(container)?.destroy()
         Shimmer.start(container, 60, if (shimmerLayout != 0) shimmerLayout else bannerShimmerLayout)
 
@@ -120,6 +122,7 @@ object Ads {
         unitId: String,
         listener: AdListener?
     ) {
+        Log.d(TAG, "Ads: loadBannerInto view for unitId='$unitId', sourceChain=${sourceFor(unitId).chain()}")
         banners.remove(view)?.destroy()
         view.visibility = android.view.View.VISIBLE
         Shimmer.start(view, 60, if (view.shimmerLayout != 0) view.shimmerLayout else bannerShimmerLayout)
@@ -153,6 +156,7 @@ object Ads {
         listener: AdListener? = null,
         shimmerLayout: Int = 0
     ) {
+        Log.d(TAG, "Ads: loadNative called for unitId='$unitId', sourceChain=${sourceFor(unitId).chain()}")
         Shimmer.start(container, 260, if (shimmerLayout != 0) shimmerLayout else nativeShimmerLayout)
 
         runChain(
@@ -176,8 +180,10 @@ object Ads {
     @JvmStatic
     @JvmOverloads
     fun preloadInterstitial(context: Context, unitId: String = "", listener: AdListener? = null) {
+        Log.d(TAG, "Ads: preloadInterstitial called for unitId='$unitId', sourceChain=${sourceFor(unitId).chain()}")
         if (AdSource.GOOGLE !in sourceFor(unitId).chain()) return
         if (GoogleAds.isInterstitialReady()) {
+            Log.d(TAG, "Ads: preloadInterstitial - Google interstitial already ready")
             listener?.onAdLoaded()
             return
         }
@@ -192,6 +198,7 @@ object Ads {
     @JvmOverloads
     fun showInterstitial(activity: Activity, unitId: String = "", onClosed: () -> Unit = {}) {
         val chain = sourceFor(unitId).chain()
+        Log.d(TAG, "Ads: showInterstitial called for unitId='$unitId', sourceChain=$chain")
 
         for (source in chain) {
             if (source == AdSource.GOOGLE) {
