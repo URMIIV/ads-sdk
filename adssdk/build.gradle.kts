@@ -45,7 +45,7 @@ afterEvaluate {
             register<MavenPublication>("release") {
                 from(components["release"])
                 groupId = "com.github.URMIIV"
-                artifactId = "adsdk"
+                artifactId = "adssdk"
                 version = "1.0.0"
             }
         }
