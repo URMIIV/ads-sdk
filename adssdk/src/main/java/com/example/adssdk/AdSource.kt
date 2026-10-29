@@ -4,7 +4,9 @@ enum class AdSource {
     OWN,
     GOOGLE,
     OWN_THEN_GOOGLE,
-    GOOGLE_THEN_OWN;
+    GOOGLE_THEN_OWN,
+    /** Picks OWN or GOOGLE at random every time; the other one is the fallback. */
+    RANDOM;
 
     /** Order in which the sources are tried. */
     internal fun chain(): List<AdSource> = when (this) {
@@ -12,6 +14,7 @@ enum class AdSource {
         GOOGLE -> listOf(GOOGLE)
         OWN_THEN_GOOGLE -> listOf(OWN, GOOGLE)
         GOOGLE_THEN_OWN -> listOf(GOOGLE, OWN)
+        RANDOM -> listOf(OWN, GOOGLE).shuffled()
     }
 
     companion object {
@@ -24,6 +27,7 @@ enum class AdSource {
                 "google", "admob" -> GOOGLE
                 "ownthengoogle", "ownfirst" -> OWN_THEN_GOOGLE
                 "googlethenown", "googlefirst" -> GOOGLE_THEN_OWN
+                "random", "mix", "both" -> RANDOM
                 else -> null
             }
         }

@@ -124,6 +124,29 @@ object AdSdk {
         return true
     }
 
+    /**
+     * APP OPEN (full screen ad when the user comes back to the app) from YOUR OWN ads.json.
+     *  true  = the ad screen was opened (onClosed is called when it closes)
+     *  false = there is NO own ad. onClosed is NOT called, so another source can be tried.
+     * It does not use minIntervalMs.
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun tryShowAppOpen(activity: Activity, unitId: String = "", onClosed: () -> Unit = {}): Boolean {
+        Log.d(TAG, "AdSdk: tryShowAppOpen called for unitId='$unitId'")
+        val ad = AdRepository.random(unitId.ifBlank { null })
+        if (ad == null) {
+            Log.w(TAG, "AdSdk: [app_open:$unitId] OWN ad not available in repository")
+            return false
+        }
+        Log.d(TAG, "AdSdk: [app_open:$unitId] SHOWING OWN ad id='${ad.id}', title='${ad.title}'")
+        InterstitialAdActivity.callback = onClosed
+        activity.startActivity(
+            Intent(activity, InterstitialAdActivity::class.java).putExtra("ad_id", ad.id)
+        )
+        return true
+    }
+
     internal fun openAd(context: Context, ad: AdModel) {
         val link = ad.clickUrl
         Log.d(TAG, "AdSdk: openAd called for ad id='${ad.id}', title='${ad.title}', clickUrl='$link'")
