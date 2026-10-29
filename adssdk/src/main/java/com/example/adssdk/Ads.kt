@@ -222,6 +222,53 @@ object Ads {
         onClosed()
     }
 
+    // -------------------------------------------------------------- app open
+
+    /** Call early (onCreate) so a Google App Open ad is ready when the user comes back. */
+    @JvmStatic
+    @JvmOverloads
+    fun preloadAppOpen(context: Context, unitId: String = "", listener: AdListener? = null) {
+        Log.d(TAG, "Ads: preloadAppOpen called for unitId='$unitId', source=${sourceFor(unitId)}")
+        if (AdSource.GOOGLE !in sourceFor(unitId).chain()) return
+        if (GoogleAds.isAppOpenReady()) {
+            listener?.onAdLoaded()
+            return
+        }
+        GoogleAds.loadAppOpen(context, listener, unitId)
+    }
+
+    /**
+     * App Open ad from your own ads.json, from Google, or random (see AdSource / ads.json "sources").
+     * Shows the first source that has an ad. onClosed is ALWAYS called (also when no ad).
+     * Call it from onResume when the user comes back to the app.
+     */
+    @JvmStatic
+    @JvmOverloads
+    fun showAppOpen(activity: Activity, unitId: String = "", onClosed: () -> Unit = {}) {
+        val chain = sourceFor(unitId).chain()
+        Log.d(TAG, "Ads: showAppOpen called for unitId='$unitId', sourceChain=$chain")
+
+        for (source in chain) {
+            if (source == AdSource.GOOGLE) {
+                if (GoogleAds.isAppOpenReady()) {
+                    Log.d(TAG, "Ads: [app_open:$unitId] SHOWING from GOOGLE (Google AdMob)")
+                    GoogleAds.showAppOpen(activity, onClosed)
+                    return
+                }
+            } else {
+                if (AdSdk.tryShowAppOpen(activity, unitId, onClosed)) {
+                    Log.d(TAG, "Ads: [app_open:$unitId] SHOWING from OWN (own SDK / ads.json)")
+                    return
+                }
+            }
+            Log.w(TAG, "Ads: app open from $source not available")
+        }
+
+        Log.w(TAG, "Ads: [app_open:$unitId] nothing to show (chain=$chain)")
+        if (AdSource.GOOGLE in chain) GoogleAds.loadAppOpen(activity, null, unitId)
+        onClosed()
+    }
+
     // ------------------------------------------------------------- lifecycle
     // Only needed for Google banners. Call from the Activity that loaded the banner.
 
